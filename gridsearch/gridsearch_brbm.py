@@ -4,9 +4,16 @@ from sklearn.model_selection import GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import binarize
 from sklearn.neural_network import BernoulliRBM
-from emfrbm.rbm_datasets import load_omniglot_iwae
+from emfrbm.rbm_datasets import load_omniglot_iwae, load_mnist_realval
 
-X_train, Y_train, _, X_test, Y_test, _ = load_omniglot_iwae()
+# omniglot data
+# X_train, Y_train, _, X_test, Y_test, _ = load_omniglot_iwae()
+
+# mnist realvals
+X_train, Y_train, x_valid, targets_valid, X_test, Y_test = \
+    load_mnist_realval()
+
+
 logistic = linear_model.LogisticRegression()
 
 
@@ -36,9 +43,9 @@ emf_rbm = BRBMTh(verbose=True)
 classifier = Pipeline(steps=[('rbm', emf_rbm), ('logistic', logistic)])
 
 param_dict = {'rbm__n_iter': [20],
-              'rbm__learning_rate': [0.001, 0.01, 0.1, 0.2],
+              'rbm__learning_rate': [0.01],
               'rbm__threshhold': [0.4, 0.5, 0.6],
-              'logistic__C': [0.001, 0.01, 1, 1.0e2, 1.0e4]}
+              'logistic__C': [1.0, 1.0e2, 1.0e4]}
 
 estimator = GridSearchCV(classifier,
                          param_dict,
