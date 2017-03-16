@@ -5,9 +5,15 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import binarize
 
 from emfrbm.emf_rbm import EMF_RBM
-from emfrbm.rbm_datasets import load_omniglot_iwae
+from emfrbm.rbm_datasets import load_omniglot_iwae, load_mnist_realval
 
-X_train, Y_train, _, X_test, Y_test, _ = load_omniglot_iwae()
+# omniglot data
+# X_train, Y_train, _, X_test, Y_test, _ = load_omniglot_iwae()
+
+# mnist realvals
+X_train, Y_train, x_valid, targets_valid, X_test, Y_test = \
+    load_mnist_realval()
+
 logistic = linear_model.LogisticRegression()
 
 
@@ -42,16 +48,16 @@ class EmfRBMTh(EMF_RBM):
         X_t = binarize(X, threshold=self.threshhold, copy=True)
         return super(EmfRBMTh, self).transform(X_t)
 
-emf_rbm = EmfRBMTh(verbose=True, monitor=True)
+emf_rbm = EmfRBMTh(verbose=True, monitor=False)
 
 classifier = Pipeline(steps=[('rbm', emf_rbm), ('logistic', logistic)])
 
-param_dict = {'rbm__n_iter': [50, 500],
-              'rbm__learning_rate': [0.001, 0.01, 0.1, 1],
-              'rbm__decay': [0.05, 0.1, 0.2],
-              'rbm__sigma': [0.001, 0.01, 0.1],
-              'rbm__threshhold': [0.25, 0.5, 0.75],
-              'logistic__C': [0.01, 1.0, 1.0e2, 1.0e4]}
+param_dict = {'rbm__n_iter': [20],
+              'rbm__learning_rate': [0.01],
+              'rbm__decay': [0.05, 0.1],
+              'rbm__sigma': [0.001, 0.01],
+              'rbm__threshhold': [0.4, 0.5, 0.6],
+              'logistic__C': [1.0, 1.0e2, 1.0e4]}
 
 estimator = GridSearchCV(classifier,
                          param_dict,
